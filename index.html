@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Metrônomo Online</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+        color: white;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      /* Container */
+      .metronome-container {
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 20px;
+        padding: 30px;
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        text-align: center;
+      }
+
+      /* Títulos */
+      h1 {
+        margin-bottom: 10px;
+        font-size: 2.2rem;
+      }
+
+      .subtitle {
+        margin-bottom: 30px;
+        opacity: 0.8;
+      }
+
+      /* BPM */
+      .bpm-display {
+        font-size: 5rem;
+        font-weight: bold;
+        margin: 20px 0;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+      }
+
+      /* Slider */
+      .bpm-slider {
+        width: 100%;
+        margin: 30px 0;
+        -webkit-appearance: none;
+        height: 10px;
+        border-radius: 5px;
+        background: #ddd;
+        outline: none;
+      }
+
+      .bpm-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background: #fdbb2d;
+        cursor: pointer;
+        box-shadow: 0 0 10px rgba(253, 187, 45, 0.8);
+      }
+
+      /* Controles */
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin: 30px 0;
+        flex-wrap: wrap;
+      }
+
+      button {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 120px;
+      }
+
+      .start-btn {
+        background: #4caf50;
+        color: white;
+      }
+
+      .start-btn:hover {
+        background: #45a049;
+        transform: scale(1.05);
+      }
+
+      .stop-btn {
+        background: #f44336;
+        color: white;
+      }
+
+      .stop-btn:hover {
+        background: #da190b;
+        transform: scale(1.05);
+      }
+
+      /* Batidas */
+      .beats-per-measure {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+
+      .beats-per-measure button {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+      }
+
+      .beats-per-measure button.active {
+        background: #fdbb2d;
+        color: black;
+      }
+
+      /* Visualizador */
+      .visualizer {
+        width: 200px;
+        height: 200px;
+        margin: 20px auto;
+        position: relative;
+      }
+
+      .pendulum {
+        width: 5px;
+        height: 150px;
+        background: white;
+        position: absolute;
+        left: 50%;
+        transform-origin: top center;
+        transform: translateX(-50%);
+        border-radius: 5px 5px 0 0;
+      }
+
+      .weight {
+        width: 30px;
+        height: 30px;
+        background: #fdbb2d;
+        border-radius: 50%;
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        box-shadow: 0 0 15px rgba(253, 187, 45, 0.8);
+      }
+
+      /* Indicadores de batida */
+      .beat-indicator {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+
+      .beat {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .beat.active {
+        background: #4caf50;
+        box-shadow: 0 0 10px #4caf50;
+      }
+
+      .beat.strong {
+        background: #f44336;
+        box-shadow: 0 0 10px #f44336;
+      }
+
+      /* Presets */
+      .presets {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .preset-btn {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 10px;
+      }
+
+      .preset-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      /* RESPONSIVIDADE */
+      @media (max-width: 600px) {
+        .metronome-container {
+          padding: 20px;
+          max-width: 90%;
+        }
+
+        h1 {
+          font-size: 1.8rem;
+        }
+
+        .bpm-display {
+          font-size: 3.5rem;
+        }
+
+        button {
+          min-width: unset;
+          width: 100%;
+        }
+
+        .controls {
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .visualizer {
+          width: 150px;
+          height: 150px;
+        }
+
+        .weight {
+          width: 25px;
+          height: 25px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="metronome-container">
+      <h1>Metrônomo Online</h1>
+      <p class="subtitle">Mantenha o ritmo perfeito</p>
+
+      <div class="bpm-display" id="bpmValue">120</div>
+
+      <div class="visualizer">
+        <div class="pendulum" id="pendulum">
+          <div class="weight"></div>
+        </div>
+      </div>
+
+      <div class="beat-indicator" id="beatIndicator">
+        <!-- Beat indicators will be generated by JavaScript -->
+      </div>
+
+      <input
+        type="range"
+        min="40"
+        max="220"
+        value="120"
+        class="bpm-slider"
+        id="bpmSlider"
+      />
+
+      <div class="beats-per-measure">
+        <span>Batidas por compasso:</span>
+        <button id="decreaseBeats">-</button>
+        <span id="beatsValue">4</span>
+        <button id="increaseBeats">+</button>
+      </div>
+
+      <div class="controls">
+        <button class="start-btn" id="startBtn">Iniciar</button>
+        <button class="stop-btn" id="stopBtn">Parar</button>
+      </div>
+
+      <div class="presets">
+        <button class="preset-btn" data-bpm="60">Largo</button>
+        <button class="preset-btn" data-bpm="80">Andante</button>
+        <button class="preset-btn" data-bpm="120">Allegro</button>
+        <button class="preset-btn" data-bpm="160">Presto</button>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Elementos do DOM
+        const bpmDisplay = document.getElementById("bpmValue");
+        const bpmSlider = document.getElementById("bpmSlider");
+        const startBtn = document.getElementById("startBtn");
+        const stopBtn = document.getElementById("stopBtn");
+        const beatsValue = document.getElementById("beatsValue");
+        const decreaseBeatsBtn = document.getElementById("decreaseBeats");
+        const increaseBeatsBtn = document.getElementById("increaseBeats");
+        const pendulum = document.getElementById("pendulum");
+        const beatIndicator = document.getElementById("beatIndicator");
+        const presetBtns = document.querySelectorAll(".preset-btn");
+
+        // Variáveis do metrônomo
+        let bpm = 120;
+        let beatsPerMeasure = 4;
+        let isRunning = false;
+        let timerId = null;
+        let currentBeat = 0;
+
+        // Configurar indicadores de batida
+        function setupBeatIndicators() {
+          beatIndicator.innerHTML = "";
+          for (let i = 0; i < beatsPerMeasure; i++) {
+            const beat = document.createElement("div");
+            beat.className = "beat";
+            if (i === 0) beat.classList.add("strong");
+            beatIndicator.appendChild(beat);
+          }
+        }
+
+        // Inicializar indicadores
+        setupBeatIndicators();
+
+        // Atualizar BPM
+        function updateBPM(value) {
+          bpm = value;
+          bpmDisplay.textContent = bpm;
+          if (isRunning) {
+            stopMetronome();
+            startMetronome();
+          }
+        }
+
+        // Atualizar batidas por compasso
+        function updateBeatsPerMeasure(value) {
+          beatsPerMeasure = value;
+          beatsValue.textContent = beatsPerMeasure;
+          setupBeatIndicators();
+          if (isRunning) {
+            stopMetronome();
+            startMetronome();
+          }
+        }
+
+        // Tocar som do metrônomo
+        function playClick() {
+          // Criar contexto de áudio
+          const audioContext = new (window.AudioContext ||
+            window.webkitAudioContext)();
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+
+          // Configurar o som
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+
+          // Primeira batida é mais forte
+          if (currentBeat === 0) {
+            oscillator.frequency.value = 800; // Frequência mais alta para batida forte
+            gainNode.gain.value = 0.3;
+          } else {
+            oscillator.frequency.value = 600; // Frequência mais baixa para batidas normais
+            gainNode.gain.value = 0.2;
+          }
+
+          // Configurar envelope do som
+          oscillator.start();
+          gainNode.gain.exponentialRampToValueAtTime(
+            0.01,
+            audioContext.currentTime + 0.1
+          );
+          oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        // Animar o pêndulo
+        function animatePendulum() {
+          const angle = isRunning ? 30 : 0;
+          const duration = 60 / bpm;
+
+          pendulum.style.transition = `transform ${duration / 2}s ease-in-out`;
+          pendulum.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+
+          setTimeout(() => {
+            if (isRunning) {
+              pendulum.style.transform = `translateX(-50%) rotate(${-angle}deg)`;
+            }
+          }, duration * 500);
+        }
+
+        // Atualizar indicadores de batida
+        function updateBeatIndicators() {
+          const beats = document.querySelectorAll(".beat");
+          beats.forEach((beat, index) => {
+            beat.classList.remove("active");
+            if (index === currentBeat) {
+              beat.classList.add("active");
+            }
+          });
+        }
+
+        // Iniciar metrônomo
+        function startMetronome() {
+          if (isRunning) return;
+
+          isRunning = true;
+          currentBeat = 0;
+          updateBeatIndicators();
+
+          const interval = (60 / bpm) * 1000; // Converter BPM para intervalo em ms
+
+          // Tocar a primeira batida imediatamente
+          playClick();
+          animatePendulum();
+
+          // Configurar o timer para batidas subsequentes
+          timerId = setInterval(() => {
+            currentBeat = (currentBeat + 1) % beatsPerMeasure;
+            playClick();
+            animatePendulum();
+            updateBeatIndicators();
+          }, interval);
+        }
+
+        // Parar metrônomo
+        function stopMetronome() {
+          isRunning = false;
+          clearInterval(timerId);
+          pendulum.style.transform = "translateX(-50%) rotate(0deg)";
+
+          // Resetar indicadores de batida
+          const beats = document.querySelectorAll(".beat");
+          beats.forEach((beat) => beat.classList.remove("active"));
+        }
+
+        // Event Listeners
+        bpmSlider.addEventListener("input", function () {
+          updateBPM(parseInt(this.value));
+        });
+
+        startBtn.addEventListener("click", startMetronome);
+
+        stopBtn.addEventListener("click", stopMetronome);
+
+        decreaseBeatsBtn.addEventListener("click", function () {
+          if (beatsPerMeasure > 1) {
+            updateBeatsPerMeasure(beatsPerMeasure - 1);
+          }
+        });
+
+        increaseBeatsBtn.addEventListener("click", function () {
+          if (beatsPerMeasure < 12) {
+            updateBeatsPerMeasure(beatsPerMeasure + 1);
+          }
+        });
+
+        presetBtns.forEach((btn) => {
+          btn.addEventListener("click", function () {
+            const presetBPM = parseInt(this.getAttribute("data-bpm"));
+            bpmSlider.value = presetBPM;
+            updateBPM(presetBPM);
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

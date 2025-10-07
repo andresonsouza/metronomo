@@ -7,7 +7,7 @@ A interface é responsiva e possui animações visuais que simulam o movimento d
 
 ## 🚀 Demonstração
 
-👉 [Acesse aqui a versão online](https://seu-link-ou-github-pages.vercel.app)
+👉 [Acesse aqui a versão online](https://andresonsouza.github.io/metronomo/)
 
 ---
 
@@ -38,7 +38,7 @@ A interface é responsiva e possui animações visuais que simulam o movimento d
 
 ```bash
 # Clone o repositório
-git clone https://github.com/seuusuario/metronomo-online.git
+git clone https://github.com/andresonsouza/metronomo.git
 
 # Acesse a pasta do projeto
 cd metronomo-online
